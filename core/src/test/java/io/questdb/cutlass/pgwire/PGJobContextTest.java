@@ -1681,6 +1681,25 @@ public class PGJobContextTest extends BasePGTest {
     }
 
     @Test
+    public void testCreateTableDuplicateColumnName() throws Exception {
+        assertMemoryLeak(() -> {
+            try (
+                    final PGWireServer ignored = createPGServer(2);
+                    final Connection conn = getConnection(false, true)
+            ) {
+                conn.prepareStatement("create table tab as (\n" +
+                        "            select\n" +
+                        "                rnd_byte() b,\n" +
+                        "                rnd_boolean() b\n" +
+                        "            from long_sequence(1)\n" +
+                        "        )").execute();
+            } catch (PSQLException e) {
+                assertContains(e.getMessage(), "duplicate column 'b'");
+            }
+        });
+    }
+
+    @Test
     public void testLocalCopyFrom() throws Exception {
         try (final PGWireServer ignored = createPGServer(2);
              final Connection connection = getConnection(false, true);
@@ -2707,7 +2726,7 @@ nodejs code:
                 ).execute();
 
                 Rnd rand = new Rnd();
-                String [] values = {"TrUE", null, "", "false", "true", "banana", "22"};
+                String[] values = {"TrUE", null, "", "false", "true", "banana", "22"};
 
                 try (PreparedStatement insert = conn.prepareStatement("insert into booleans values (cast(? as boolean), ?)")) {
                     long micros = TimestampFormatUtils.parseTimestamp("2022-04-19T18:50:00.998666Z");

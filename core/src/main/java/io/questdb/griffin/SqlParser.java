@@ -1468,6 +1468,7 @@ public final class SqlParser {
             tok = optTok(lexer);
 
             QueryColumn col;
+            final int colPosition = lexer.lastTokenPosition();
 
             if (tok != null && isOverKeyword(tok)) {
                 // analytic
@@ -1533,7 +1534,9 @@ public final class SqlParser {
             }
 
             col.setAlias(alias);
-            model.addBottomUpColumn(col);
+            if (!model.addBottomUpColumn(col)) {
+                throw SqlException.$(colPosition, "duplicate column '").put(col.getName()).put("'");
+            }
 
             if (tok == null || Chars.equals(tok, ';')) {
                 lexer.unparse();
@@ -1651,7 +1654,9 @@ public final class SqlParser {
             updateQueryModel.getUpdateExpressions().add(setColumnExpression);
 
             QueryColumn valueColumn = queryColumnPool.next().of(col, expr);
-            fromModel.addBottomUpColumn(valueColumn);
+            if (!fromModel.addBottomUpColumn(valueColumn)) {
+                throw SqlException.$(colPosition, "duplicate column '").put(col).put("' in SET clause");
+            }
 
             tok = optTok(lexer);
             if (tok == null) {

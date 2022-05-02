@@ -1137,7 +1137,7 @@ class SqlOptimiser {
         }
     }
 
-    private boolean emitAggregates(@Transient ExpressionNode node, QueryModel model) {
+    private boolean emitAggregates(@Transient ExpressionNode node, QueryModel model) throws SqlException {
 
         boolean replaced = false;
         this.sqlNodeStack.clear();
@@ -2451,7 +2451,7 @@ class SqlOptimiser {
         assert root != -1;
     }
 
-    private ExpressionNode replaceIfAggregate(@Transient ExpressionNode node, QueryModel model) {
+    private ExpressionNode replaceIfAggregate(@Transient ExpressionNode node, QueryModel model) throws SqlException {
         if (node != null && functionParser.getFunctionFactoryCache().isGroupBy(node.token)) {
             QueryColumn c = model.findBottomUpColumnByAst(node);
             if (c == null) {

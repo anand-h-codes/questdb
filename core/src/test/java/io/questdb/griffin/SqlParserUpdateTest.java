@@ -100,7 +100,7 @@ public class SqlParserUpdateTest extends AbstractSqlParserTest {
         assertSyntaxError(
                 "update tblx set x = 1, s = 'abc', x = 2",
                 "update tblx set x = 1, s = 'abc', ".length(),
-                "Duplicate column x in SET clause",
+                "duplicate column 'x' in SET clause",
                 partitionedModelOf("tblx")
                         .col("t", ColumnType.TIMESTAMP)
                         .col("x", ColumnType.INT)
